@@ -911,8 +911,17 @@
       body.innerHTML = filtered.map(product => `
         <tr>
           <td>
-            <strong>${escapeHtml(product.name)}</strong><br />
-            <span style="color:var(--muted); font-size:.88rem;">${escapeHtml(product.slug || "—")}</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <img
+                src="${escapeHtml(product.image_url || "https://via.placeholder.com/300x360.png?text=Produto")}" 
+                alt="${escapeHtml(product.name)}"
+                style="width:55px; height:65px; object-fit:cover; border-radius:10px; border:1px solid var(--line); background:#f3f4f6; flex-shrink:0;"
+              />
+              <div>
+                <strong>${escapeHtml(product.name)}</strong><br />
+                <span style="color:var(--muted); font-size:.88rem;">${escapeHtml(product.slug || "—")}</span>
+              </div>
+            </div>
           </td>
           <td>${escapeHtml(product.category_name)}</td>
           <td>${formatPrice(product.price)}</td>
