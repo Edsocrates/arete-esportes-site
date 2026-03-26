@@ -207,6 +207,10 @@ body.no-scroll{overflow:hidden}
 }
 
 @media(max-width:560px){
+  .meta-box{display:none}
+  .product-description{display:none}
+  .breadcrumbs{display:none}
+
   .topbar-inner{padding:10px 0}
   .brand img{width:42px;height:42px}
   .back-btn span{display:none}
@@ -232,7 +236,7 @@ body.no-scroll{overflow:hidden}
 </head>
 
 <body>
-<header class="topbar">
+<header class="topbar" id="topo-site">
   <div class="container topbar-inner">
     <a href="index.html" class="brand">
       <img id="site-logo" src="https://via.placeholder.com/100" alt="Logo Arete Esportes">
@@ -586,6 +590,16 @@ function setupGallery(images) {
   });
 }
 
+
+function scrollToTopSmooth() {
+  const topAnchor = document.getElementById("topo-site");
+  if (topAnchor) {
+    topAnchor.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
 function renderProduct(product) {
   currentProduct = product;
   selectedSize = "";
@@ -768,6 +782,7 @@ function renderProduct(product) {
 
       rerenderGallery(variantImages);
       rerenderSizes(variantSizes);
+      scrollToTopSmooth();
     });
   });
 
