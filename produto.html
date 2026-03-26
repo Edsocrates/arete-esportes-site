@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produto | Arete Esportes</title>
+<meta name="description" content="Confira os detalhes do produto na Arete Esportes e finalize seu pedido pelo WhatsApp.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --accent:#22c55e;
+  --accent-dark:#16a34a;
+  --accent-soft:rgba(34,197,94,.12);
+  --line:#e9e9e9;
+  --muted:#6b7280;
+  --text:#111827;
+  --surface:#f8f8f8;
+  --surface-2:#fafafa;
+  --shadow-sm:0 10px 24px rgba(0,0,0,.05);
+  --shadow-md:0 18px 38px rgba(0,0,0,.08);
+  --radius-xl:28px;
+  --radius-lg:22px;
+  --radius-md:18px;
+  --radius-sm:14px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--text);line-height:1.5}
+a{text-decoration:none;color:inherit}
+button{font:inherit;cursor:pointer;border:none;background:none}
+img{display:block;max-width:100%}
+.container{width:min(100% - 24px,1120px);margin:auto}
+body.no-scroll{overflow:hidden}
+
+.topbar{
+  position:sticky;top:0;z-index:30;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.05)
+}
+.topbar-inner{display:flex;justify-content:space-between;align-items:center;padding:12px 0;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{
+  width:46px;height:46px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--line);background:#f3f3f3;box-shadow:var(--shadow-sm)
+}
+.brand strong{display:block;font-size:1rem;line-height:1.05}
+.brand small{display:block;color:var(--muted);font-size:.8rem}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.social-icon,.back-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:999px;border:1px solid var(--line);background:#fff;
+  box-shadow:var(--shadow-sm);transition:.25s ease
+}
+.social-icon{
+  width:42px;height:42px;color:#111
+}
+.social-icon svg{width:19px;height:19px;fill:currentColor}
+.social-icon.instagram:hover{
+  color:#e1306c;transform:translateY(-2px);box-shadow:var(--shadow-md);
+  border-color:rgba(225,48,108,.15)
+}
+.social-icon.whatsapp:hover{
+  color:#16a34a;transform:translateY(-2px);box-shadow:var(--shadow-md);
+  border-color:rgba(22,163,74,.16)
+}
+.back-btn{
+  padding:10px 14px;font-weight:800
+}
+.social-icon:hover,.back-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+
+.page{padding:22px 0 58px}
+.breadcrumbs{display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:.92rem;margin-bottom:18px}
+.product-layout{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:30px}
+
+.gallery-card,.info-card,.related-wrap,.state-box{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)
+}
+
+.gallery-card{padding:16px}
+.gallery-stage{
+  position:relative;border-radius:26px;overflow:hidden;
+  background:linear-gradient(180deg,#fafafa,#f3f3f3);
+  box-shadow:0 18px 40px rgba(0,0,0,.08)
+}
+.gallery-track{
+  display:flex;width:100%;transition:transform .34s cubic-bezier(.22,.61,.36,1);
+  touch-action:pan-y;user-select:none
+}
+.gallery-slide{min-width:100%;position:relative}
+.main-image{
+  width:100%;aspect-ratio:1/1.18;object-fit:cover;
+  -webkit-user-drag:none;user-select:none
+}
+.badge{
+  position:absolute;top:14px;left:14px;z-index:3;
+  background:rgba(255,255,255,.96);color:var(--accent-dark);
+  border:1px solid rgba(34,197,94,.18);border-radius:999px;
+  padding:8px 12px;font-size:.72rem;font-weight:900;
+  box-shadow:0 10px 20px rgba(0,0,0,.05)
+}
+.gallery-nav{
+  position:absolute;inset:auto 12px 12px auto;display:flex;gap:8px;z-index:3
+}
+.gallery-arrow{
+  width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,.94);
+  border:1px solid rgba(0,0,0,.06);font-size:1rem;font-weight:900;box-shadow:var(--shadow-sm)
+}
+.gallery-dots{
+  position:absolute;left:14px;bottom:16px;display:flex;gap:7px;z-index:3
+}
+.gallery-dots button{
+  width:9px;height:9px;border-radius:999px;background:rgba(255,255,255,.52)
+}
+.gallery-dots button.active{background:#fff;width:22px}
+.swipe-hint{
+  display:none;
+  align-items:center;justify-content:center;gap:8px;
+  color:var(--muted);font-size:.85rem;font-weight:700;margin-top:12px
+}
+.swipe-hint span{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:999px;background:#fff;border:1px solid var(--line)
+}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.thumb-btn{
+  border-radius:16px;overflow:hidden;border:2px solid transparent;background:var(--surface);
+  transition:.22s ease
+}
+.thumb-btn.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,197,94,.09)}
+.thumb-btn img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.thumb-btn:hover{transform:translateY(-2px)}
+
+.info-card{padding:30px;position:sticky;top:86px}
+.product-category{
+  display:inline-flex;align-items:center;
+  font-size:.74rem;color:#8b8b8b;text-transform:uppercase;letter-spacing:.08em;font-weight:800;
+  margin-bottom:10px
+}
+.product-title{font-size:clamp(1.9rem,3vw,2.55rem);line-height:1.04;margin-bottom:12px;letter-spacing:-.02em}
+.price-row{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.product-price{font-size:1.72rem;font-weight:900;line-height:1}
+.pix-block{display:flex;flex-direction:column;gap:5px}
+.pix-discount-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-size:.84rem;font-weight:900;border:1px solid rgba(34,197,94,.14);width:max-content}
+.pix-price{font-size:1rem;font-weight:800;color:#374151}
+.trust-inline{
+  font-size:.83rem;color:var(--accent-dark);font-weight:800;
+  background:var(--accent-soft);padding:8px 12px;border-radius:999px;border:1px solid rgba(34,197,94,.14)
+}
+.product-description{color:var(--muted);margin-bottom:22px;font-size:.98rem}
+.meta-box{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:22px}
+.meta-item{background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:15px}
+.meta-label{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.meta-value{font-weight:800}
+.sizes-title{font-size:1rem;font-weight:800;margin-bottom:10px}
+.sizes-grid{display:flex;flex-wrap:wrap;gap:10px}
+.size-btn{
+  min-width:62px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);
+  background:#fff;font-weight:900;transition:.22s ease
+}
+.size-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 12px 24px rgba(34,197,94,.18)}
+.size-btn:hover{transform:translateY(-2px)}
+.size-alert{min-height:22px;color:#dc2626;font-size:.92rem;font-weight:800;margin-top:10px}
+.whatsapp-btn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:18px;border-radius:999px;background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;font-weight:900;box-shadow:0 18px 36px rgba(34,197,94,.28);margin-top:16px;
+  transition:.25s ease
+}
+.whatsapp-btn:hover{transform:translateY(-2px)}
+.small-note{color:var(--muted);font-size:.9rem;margin-top:10px}
+.security-strip{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:18px
+}
+.security-pill{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
+  background:#fff;border:1px solid var(--line);font-size:.84rem;font-weight:800;color:#374151
+}
+
+.state-box{padding:28px;text-align:center;color:var(--muted)}
+.related-section{margin-top:28px}
+.related-wrap{padding:20px}
+.section-title{font-size:1.42rem;margin-bottom:14px}
+.related-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.product-card{
+  border-radius:22px;border:1px solid var(--line);box-shadow:0 12px 28px rgba(0,0,0,.05);
+  overflow:hidden;background:#fff;transition:.22s ease
+}
+.product-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.product-card-image{position:relative}
+.product-card-image img{width:100%;aspect-ratio:1/1.16;object-fit:cover;background:var(--surface)}
+.product-card-body{padding:14px}
+.product-card-name{font-size:.95rem;font-weight:800;line-height:1.3;margin-bottom:8px}
+.product-card-price{font-weight:900}
+.product-card-badge{
+  position:absolute;top:10px;left:10px;background:rgba(255,255,255,.96);padding:7px 10px;border-radius:999px;
+  border:1px solid rgba(34,197,94,.14);font-size:.67rem;font-weight:900;color:var(--accent-dark)
+}
+
+@media(max-width:980px){
+  .product-layout{grid-template-columns:1fr}
+  .info-card{position:static}
+  .related-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:560px){
+  .topbar-inner{padding:10px 0}
+  .brand img{width:42px;height:42px}
+  .back-btn span{display:none}
+  .social-icon{display:inline-flex;width:40px;height:40px}
+  .social-icon svg{width:17px;height:17px}
+  .page{padding:16px 0 48px}
+  .gallery-card,.info-card,.related-wrap,.state-box{border-radius:20px}
+  .gallery-card{padding:12px}
+  .gallery-stage{border-radius:18px}
+  .gallery-arrow{display:none}
+  .swipe-hint{display:flex}
+  .thumbs{grid-template-columns:repeat(4,1fr);gap:8px}
+  .info-card{padding:20px}
+  .product-title{font-size:1.6rem}
+  .product-price{font-size:1.42rem}
+  .pix-price{font-size:.94rem}
+  .price-row{align-items:flex-start;flex-direction:column}
+  .meta-box{grid-template-columns:1fr}
+  .related-grid{grid-template-columns:1fr 1fr}
+  .badge{font-size:.66rem;padding:7px 10px;top:10px;left:10px}
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a href="index.html" class="brand">
+      <img id="site-logo" src="https://via.placeholder.com/100" alt="Logo Arete Esportes">
+      <div>
+        <strong id="site-name">Arete Esportes</strong>
+        <small>Moda fitness em pronta entrega</small>
+      </div>
+    </a>
+
+    <div class="topbar-actions">
+      <a class="social-icon instagram" id="instagram-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2Zm10.35 1.65a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2.2A2.8 2.8 0 1 0 12 14.8 2.8 2.8 0 0 0 12 9.2Z"/></svg>
+      </a>
+      <a class="social-icon whatsapp" id="top-whatsapp-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.5 0 .16 5.33.16 11.9c0 2.1.55 4.15 1.6 5.96L0 24l6.3-1.65a11.9 11.9 0 0 0 5.77 1.47h.01c6.57 0 11.91-5.34 11.92-11.91a11.8 11.8 0 0 0-3.48-8.43Zm-8.44 18.34h-.01a9.93 9.93 0 0 1-5.06-1.39l-.36-.21-3.74.98 1-3.65-.24-.38a9.9 9.9 0 0 1-1.53-5.28c0-5.47 4.46-9.92 9.94-9.92 2.65 0 5.14 1.03 7.01 2.91a9.86 9.86 0 0 1 2.9 7c0 5.48-4.46 9.94-9.91 9.94Zm5.44-7.45c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.52-1.8-1.7-2.1-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.21-.24-.59-.49-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.48 0 1.45 1.08 2.86 1.23 3.05.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.62.72.23 1.38.2 1.9.12.58-.09 1.76-.72 2.01-1.41.25-.69.25-1.28.17-1.4-.07-.12-.27-.2-.57-.35Z"/></svg>
+      </a>
+      <a class="back-btn" href="index.html">← <span>Voltar</span></a>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="container">
+    <nav class="breadcrumbs">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <span id="breadcrumb-category">Produto</span>
+      <span>›</span>
+      <span id="breadcrumb-name">Detalhes</span>
+    </nav>
+
+    <div id="product-root" class="state-box">Carregando...</div>
+
+    <section class="related-section" id="related-section" style="display:none;">
+      <div class="related-wrap">
+        <h2 class="section-title">Você também pode gostar</h2>
+        <div class="related-grid" id="related-products"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const SUPABASE_URL = "https://xkwohtimmgnieeizzbbt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kupv47mSJICW502TKFNK2w_LAc1tsyv";
+
+let supabaseClient = null;
+let selectedSize = "";
+let selectedColor = "";
+let currentVariant = null;
+let currentProduct = null;
+let whatsappNumber = "5597984143485";
+let instagramUrl = "https://instagram.com/arete.esportes";
+
+const FALLBACK_SETTINGS = {
+  site_name: "Arete Esportes",
+  logo_url: "https://via.placeholder.com/100",
+  whatsapp_number: "5597984143485",
+  instagram_url: "https://instagram.com/arete.esportes"
+};
+
+if (window.supabase) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+function getId() {
+  return new URLSearchParams(window.location.search).get("id");
+}
+
+function formatPrice(value) {
+  return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function normalizeWhatsAppNumber(number) {
+  return String(number || "").replace(/\D/g, "");
+}
+
+function cacheBustedUrl(url) {
+  if (!url) return "https://via.placeholder.com/900x1100?text=Produto";
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${Date.now()}`;
+}
+
+function createWhatsAppLink(number, message) {
+  return `https://wa.me/${normalizeWhatsAppNumber(number)}?text=${encodeURIComponent(message)}`;
+}
+
+function getProductImages(product) {
+  const images = [product.image_url, product.image_url_2, product.image_url_3]
+    .filter(Boolean)
+    .map(cacheBustedUrl);
+
+  return images.length ? images : ["https://via.placeholder.com/900x1100?text=Produto"];
+}
+
+function getProductBadge(product) {
+  return product.badge || product.badge_label || product.badge_type || "Pronta Entrega";
+}
+
+function getVariantImages(variant, fallbackProduct) {
+  const images = [variant?.image_url, variant?.image_url_2, variant?.image_url_3]
+    .filter(Boolean)
+    .map(cacheBustedUrl);
+  return images.length ? images : getProductImages(fallbackProduct);
+}
+
+function getDisplaySizes(product, variant) {
+  if (variant && Array.isArray(variant.sizes) && variant.sizes.length) return variant.sizes;
+  return product.sizes?.length ? product.sizes : ["P", "M", "G"];
+}
+
+function getInitialVariant(product) {
+  const activeVariants = (product.variants || []).filter(v => v.active !== false);
+  return activeVariants.length ? activeVariants[0] : null;
+}
+
+async function fetchSettings() {
+  if (!supabaseClient) return null;
+  const { data, error } = await supabaseClient.from("site_settings").select("*").limit(1).maybeSingle();
+  if (error) return null;
+  return data;
+}
+
+async function fetchProducts() {
+  if (!supabaseClient) return [];
+
+  const enrichedSelect = `
+      id,
+      slug,
+      name,
+      description,
+      price,
+      pix_discount,
+      image_url,
+      image_url_2,
+      image_url_3,
+      category_id,
+      active,
+      badge,
+      badge_label,
+      badge_type,
+      categories(name)
+    `;
+
+  const basicSelect = `
+      id,
+      slug,
+      name,
+      description,
+      price,
+      pix_discount,
+      image_url,
+      image_url_2,
+      image_url_3,
+      category_id,
+      active,
+      categories(name)
+    `;
+
+  let data = null;
+  let error = null;
+
+  let response = await supabaseClient
+    .from("products")
+    .select(enrichedSelect)
+    .eq("active", true)
+    .order("created_at", { ascending: false });
+
+  data = response.data;
+  error = response.error;
+
+  if (error) {
+    response = await supabaseClient
+      .from("products")
+      .select(basicSelect)
+      .eq("active", true)
+      .order("created_at", { ascending: false });
+
+    data = response.data;
+    error = response.error;
+  }
+
+  if (error || !data) return [];
+
+  const ids = data.map(item => item.id);
+  let sizesData = [];
+  if (ids.length) {
+    const responseSizes = await supabaseClient
+      .from("product_sizes")
+      .select("product_id, size, available")
+      .in("product_id", ids);
+    sizesData = responseSizes.data || [];
+  }
+
+  let variantsData = [];
+  let variantSizesData = [];
+  if (ids.length) {
+    const variantsResponse = await supabaseClient
+      .from("product_variants")
+      .select("id, product_id, color_name, color_hex, image_url, image_url_2, image_url_3, active, sort_order")
+      .in("product_id", ids)
+      .order("sort_order", { ascending: true });
+
+    if (!variantsResponse.error && variantsResponse.data) {
+      variantsData = variantsResponse.data;
+      const variantIds = variantsData.map(v => v.id);
+      if (variantIds.length) {
+        const variantSizesResponse = await supabaseClient
+          .from("product_variant_sizes")
+          .select("variant_id, size, available")
+          .in("variant_id", variantIds);
+        if (!variantSizesResponse.error && variantSizesResponse.data) {
+          variantSizesData = variantSizesResponse.data;
+        }
+      }
+    }
+  }
+
+  return data.map(item => ({
+    ...item,
+    pix_discount: Number(item.pix_discount || 0),
+    category_name: item.categories?.name || "Moda Fitness",
+    sizes: sizesData
+      .filter(row => String(row.product_id) === String(item.id) && row.available !== false)
+      .map(row => row.size),
+    variants: variantsData
+      .filter(variant => String(variant.product_id) === String(item.id))
+      .map(variant => ({
+        ...variant,
+        sizes: variantSizesData
+          .filter(row => String(row.variant_id) === String(variant.id) && row.available !== false)
+          .map(row => row.size)
+      }))
+  }));
+}
+
+function productCard(product) {
+  const slug = encodeURIComponent(product.slug || product.id);
+  const badge = getProductBadge(product);
+
+  return `
+    <a class="product-card" href="produto.html?id=${slug}">
+      <div class="product-card-image">
+        <img src="${cacheBustedUrl(product.image_url)}" alt="${product.name}">
+        <span class="product-card-badge">${badge}</span>
+      </div>
+      <div class="product-card-body">
+        <div class="product-card-name">${product.name}</div>
+        <div class="product-card-price">${formatPrice(product.price)}</div>
+      </div>
+    </a>
+  `;
+}
+
+function setupGallery(images) {
+  const track = document.getElementById("gallery-track");
+  const dotsWrap = document.getElementById("gallery-dots");
+  const thumbs = Array.from(document.querySelectorAll(".thumb-btn"));
+  const prevBtn = document.getElementById("gallery-prev");
+  const nextBtn = document.getElementById("gallery-next");
+
+  if (!track) return;
+
+  let currentIndex = 0;
+  let startX = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let isDragging = false;
+  let moved = false;
+
+  function updateGallery(index, animate = true) {
+    currentIndex = (index + images.length) % images.length;
+    track.style.transition = animate ? "transform .34s cubic-bezier(.22,.61,.36,1)" : "none";
+    const percentage = -currentIndex * 100;
+    track.style.transform = `translateX(${percentage}%)`;
+
+    thumbs.forEach((btn, i) => btn.classList.toggle("active", i === currentIndex));
+
+    if (dotsWrap) {
+      dotsWrap.querySelectorAll("button").forEach((dot, i) => {
+        dot.classList.toggle("active", i === currentIndex);
+      });
+    }
+  }
+
+  function buildDots() {
+    if (!dotsWrap) return;
+    dotsWrap.innerHTML = images
+      .map((_, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-index="${index}" aria-label="Ir para imagem ${index + 1}"></button>`)
+      .join("");
+
+    dotsWrap.querySelectorAll("button").forEach(dot => {
+      dot.addEventListener("click", () => updateGallery(Number(dot.dataset.index)));
+    });
+  }
+
+  buildDots();
+  updateGallery(0, false);
+
+  thumbs.forEach((button, index) => {
+    button.addEventListener("click", () => updateGallery(index));
+  });
+
+  if (prevBtn) prevBtn.addEventListener("click", () => updateGallery(currentIndex - 1));
+  if (nextBtn) nextBtn.addEventListener("click", () => updateGallery(currentIndex + 1));
+
+  function getPositionX(event) {
+    return event.type.includes("mouse") ? event.pageX : event.touches[0].clientX;
+  }
+
+  function touchStart(index) {
+    return function(event) {
+      currentIndex = index;
+      startX = getPositionX(event);
+      isDragging = true;
+      moved = false;
+      track.style.transition = "none";
+    };
+  }
+
+  function touchMove(event) {
+    if (!isDragging) return;
+    const currentPosition = getPositionX(event);
+    currentTranslate = prevTranslate + currentPosition - startX;
+    if (Math.abs(currentPosition - startX) > 6) moved = true;
+    track.style.transform = `translateX(calc(${-currentIndex * 100}% + ${currentTranslate}px))`;
+  }
+
+  function touchEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    const movedBy = currentTranslate;
+    if (movedBy < -60) currentIndex += 1;
+    if (movedBy > 60) currentIndex -= 1;
+    currentTranslate = 0;
+    prevTranslate = 0;
+    updateGallery(currentIndex);
+  }
+
+  const slides = Array.from(document.querySelectorAll(".gallery-slide"));
+  slides.forEach((slide, index) => {
+    slide.addEventListener("dragstart", e => e.preventDefault());
+    slide.addEventListener("touchstart", touchStart(index), { passive: true });
+    slide.addEventListener("touchmove", touchMove, { passive: true });
+    slide.addEventListener("touchend", touchEnd);
+    slide.addEventListener("mousedown", touchStart(index));
+    slide.addEventListener("mousemove", touchMove);
+    slide.addEventListener("mouseup", touchEnd);
+    slide.addEventListener("mouseleave", () => { if (isDragging) touchEnd(); });
+    slide.addEventListener("click", e => { if (moved) e.preventDefault(); });
+  });
+}
+
+function renderProduct(product) {
+  currentProduct = product;
+  selectedSize = "";
+  currentVariant = getInitialVariant(product);
+  selectedColor = currentVariant?.color_name || "";
+
+  const root = document.getElementById("product-root");
+  const images = currentVariant ? getVariantImages(currentVariant, product) : getProductImages(product);
+  const sizes = getDisplaySizes(product, currentVariant);
+  const badge = getProductBadge(product);
+  const activeVariants = (product.variants || []).filter(v => v.active !== false);
+  const pixDiscount = Number(product.pix_discount || 0);
+  const pixPrice = pixDiscount > 0 ? product.price * (1 - pixDiscount / 100) : null;
+
+  document.title = `${product.name} | Arete Esportes`;
+  document.getElementById("breadcrumb-category").textContent = product.category_name || "Produto";
+  document.getElementById("breadcrumb-name").textContent = product.name;
+
+  root.className = "";
+  root.innerHTML = `
+    <div class="product-layout">
+      <section class="gallery-card">
+        <div class="gallery-stage">
+          <span class="badge">${badge}</span>
+
+          <div class="gallery-track" id="gallery-track">
+            ${images.map((image, index) => `
+              <div class="gallery-slide" data-index="${index}">
+                <img class="main-image" src="${image}" alt="${product.name} ${index + 1}">
+              </div>
+            `).join("")}
+          </div>
+
+          ${images.length > 1 ? `
+            <div class="gallery-dots" id="gallery-dots"></div>
+            <div class="gallery-nav">
+              <button type="button" class="gallery-arrow" id="gallery-prev" aria-label="Imagem anterior">←</button>
+              <button type="button" class="gallery-arrow" id="gallery-next" aria-label="Próxima imagem">→</button>
+            </div>
+          ` : ``}
+        </div>
+
+        ${images.length > 1 ? `
+          <div class="swipe-hint"><span>↔</span> Arraste para ver mais fotos</div>
+          <div class="thumbs">
+            ${images.map((image, index) => `
+              <button type="button" class="thumb-btn ${index === 0 ? "active" : ""}" data-image="${image}" data-index="${index}">
+                <img src="${image}" alt="${product.name} ${index + 1}">
+              </button>
+            `).join("")}
+          </div>
+        ` : ``}
+      </section>
+
+      <aside class="info-card">
+        <div class="product-category">${product.category_name || "Moda Fitness"}</div>
+        <h1 class="product-title">${product.name}</h1>
+
+        <div class="price-row">
+          <div class="pix-block">
+            <div class="product-price">${formatPrice(product.price)}</div>
+            ${pixDiscount > 0 ? `<div class="pix-discount-pill">${pixDiscount}% OFF no Pix</div><div class="pix-price">${formatPrice(pixPrice)} no Pix</div>` : ``}
+          </div>
+          <div class="trust-inline">${badge}</div>
+        </div>
+
+        <p class="product-description">${product.description || "Peça disponível na Arete Esportes."}</p>
+
+        <div class="meta-box">
+          <div class="meta-item">
+            <div class="meta-label">Disponibilidade</div>
+            <div class="meta-value">${badge}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Pedido</div>
+            <div class="meta-value">Direto no WhatsApp</div>
+          </div>
+        </div>
+
+        ${activeVariants.length ? `
+          <div class="sizes-title">Escolha a cor</div>
+          <div class="sizes-grid" id="colors-grid">
+            ${activeVariants.map(variant => `
+              <button type="button" class="size-btn color-btn ${variant.color_name === selectedColor ? "active" : ""}" data-color="${variant.color_name}">
+                ${variant.color_hex ? `<span style="display:inline-block;width:14px;height:14px;border-radius:999px;background:${variant.color_hex};border:1px solid rgba(0,0,0,.12);vertical-align:-2px;margin-right:8px"></span>` : ``}${variant.color_name}
+              </button>
+            `).join("")}
+          </div>
+          <div class="small-note" id="color-note">As fotos e tamanhos mudam conforme a cor escolhida.</div>
+        ` : ``}
+
+        <div class="sizes-title" style="margin-top:${activeVariants.length ? '18px' : '0'}">Escolha seu tamanho</div>
+        <div class="sizes-grid" id="sizes-grid">
+          ${sizes.map(size => `<button type="button" class="size-btn" data-size="${size}">${size}</button>`).join("")}
+        </div>
+        <div class="size-alert" id="size-alert"></div>
+
+        <button type="button" class="whatsapp-btn" id="buy-whatsapp-btn">💬 Comprar no WhatsApp</button>
+        <div class="small-note">Seleção de tamanho obrigatória antes de continuar.</div>
+
+        <div class="security-strip">
+          <div class="security-pill">⚡ Entrega rápida em Humaitá</div>
+          <div class="security-pill">✔ Peças selecionadas com qualidade</div>
+        </div>
+      </aside>
+    </div>
+  `;
+
+  function bindGalleryFor(imagesToUse) {
+    if (imagesToUse.length > 1) setupGallery(imagesToUse);
+  }
+
+  function bindSizeButtons() {
+    document.querySelectorAll("#sizes-grid .size-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("#sizes-grid .size-btn").forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+        selectedSize = button.dataset.size;
+        document.getElementById("size-alert").textContent = "";
+      });
+    });
+  }
+
+  function rerenderGallery(imagesToUse) {
+    const galleryCard = document.querySelector(".gallery-card");
+    galleryCard.innerHTML = `
+      <div class="gallery-stage">
+        <span class="badge">${badge}</span>
+
+        <div class="gallery-track" id="gallery-track">
+          ${imagesToUse.map((image, index) => `
+            <div class="gallery-slide" data-index="${index}">
+              <img class="main-image" src="${image}" alt="${product.name} ${index + 1}">
+            </div>
+          `).join("")}
+        </div>
+
+        ${imagesToUse.length > 1 ? `
+          <div class="gallery-dots" id="gallery-dots"></div>
+          <div class="gallery-nav">
+            <button type="button" class="gallery-arrow" id="gallery-prev" aria-label="Imagem anterior">←</button>
+            <button type="button" class="gallery-arrow" id="gallery-next" aria-label="Próxima imagem">→</button>
+          </div>
+        ` : ``}
+      </div>
+
+      ${imagesToUse.length > 1 ? `
+        <div class="swipe-hint"><span>↔</span> Arraste para ver mais fotos</div>
+        <div class="thumbs">
+          ${imagesToUse.map((image, index) => `
+            <button type="button" class="thumb-btn ${index === 0 ? "active" : ""}" data-image="${image}" data-index="${index}">
+              <img src="${image}" alt="${product.name} ${index + 1}">
+            </button>
+          `).join("")}
+        </div>
+      ` : ``}
+    `;
+    bindGalleryFor(imagesToUse);
+  }
+
+  function rerenderSizes(sizesToUse) {
+    selectedSize = "";
+    document.getElementById("sizes-grid").innerHTML = sizesToUse.map(size => `<button type="button" class="size-btn" data-size="${size}">${size}</button>`).join("");
+    bindSizeButtons();
+    document.getElementById("size-alert").textContent = "";
+  }
+
+  bindGalleryFor(images);
+  bindSizeButtons();
+
+  document.querySelectorAll(".color-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".color-btn").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      selectedColor = button.dataset.color;
+      currentVariant = activeVariants.find(v => v.color_name === selectedColor) || null;
+
+      const variantImages = currentVariant ? getVariantImages(currentVariant, product) : getProductImages(product);
+      const variantSizes = getDisplaySizes(product, currentVariant);
+
+      rerenderGallery(variantImages);
+      rerenderSizes(variantSizes);
+    });
+  });
+
+  document.getElementById("buy-whatsapp-btn").addEventListener("click", () => {
+    if (!selectedSize) {
+      document.getElementById("size-alert").textContent = "Escolha um tamanho para continuar.";
+      return;
+    }
+
+    const message = [
+      "Olá! Quero esse produto:",
+      "",
+      `Produto: ${currentProduct.name}`,
+      ...(selectedColor ? [`Cor: ${selectedColor}`] : []),
+      `Tamanho: ${selectedSize}`,
+      `Preço: ${formatPrice(currentProduct.price)}`
+    ].join("\n");
+
+    window.open(createWhatsAppLink(whatsappNumber, message), "_blank");
+  });
+}
+
+function renderRelatedProducts(products, currentId, currentCategoryId) {
+  const related = products
+    .filter(item => String(item.id) !== String(currentId))
+    .filter(item => String(item.category_id) === String(currentCategoryId))
+    .slice(0, 4);
+
+  if (!related.length) return;
+  document.getElementById("related-section").style.display = "block";
+  document.getElementById("related-products").innerHTML = related.map(productCard).join("");
+}
+
+function applySettings(settings) {
+  const finalSettings = { ...FALLBACK_SETTINGS, ...(settings || {}) };
+  document.getElementById("site-name").textContent = finalSettings.site_name || FALLBACK_SETTINGS.site_name;
+  document.getElementById("site-logo").src = cacheBustedUrl(finalSettings.logo_url || FALLBACK_SETTINGS.logo_url);
+
+  whatsappNumber = finalSettings.whatsapp_number || FALLBACK_SETTINGS.whatsapp_number;
+  instagramUrl = finalSettings.instagram_url || FALLBACK_SETTINGS.instagram_url;
+
+  const insta = document.getElementById("instagram-link");
+  const topWhats = document.getElementById("top-whatsapp-link");
+
+  insta.href = instagramUrl;
+  topWhats.href = `https://wa.me/${normalizeWhatsAppNumber(whatsappNumber)}`;
+}
+
+async function load() {
+  try {
+    const [settings, products] = await Promise.all([fetchSettings(), fetchProducts()]);
+
+    applySettings(settings);
+
+    const requestedId = getId();
+    let product = products.find(item => String(item.slug) === String(requestedId) || String(item.id) === String(requestedId));
+
+    if (!product && products.length) product = products[0];
+    if (!product) {
+      document.getElementById("product-root").className = "state-box";
+      document.getElementById("product-root").textContent = "Produto não encontrado.";
+      return;
+    }
+
+    renderProduct(product);
+    renderRelatedProducts(products, product.id, product.category_id);
+  } catch (error) {
+    console.error(error);
+    applySettings(null);
+    document.getElementById("product-root").className = "state-box";
+    document.getElementById("product-root").textContent = "Erro ao carregar o produto.";
+  }
+}
+
+load();
+</script>
+</body>
+</html>
