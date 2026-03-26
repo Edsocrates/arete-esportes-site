@@ -324,6 +324,10 @@ function createWhatsAppLink(number, message) {
   return `https://wa.me/${normalizeWhatsAppNumber(number)}?text=${encodeURIComponent(message)}`;
 }
 
+function getCurrentProductLink() {
+  return window.location.href;
+}
+
 function getProductImages(product) {
   const images = [product.image_url, product.image_url_2, product.image_url_3]
     .filter(Boolean)
@@ -792,13 +796,21 @@ function renderProduct(product) {
       return;
     }
 
+    const productLink = getCurrentProductLink();
+    const pixValue = Number(currentProduct.pix_discount || 0) > 0
+      ? currentProduct.price * (1 - Number(currentProduct.pix_discount || 0) / 100)
+      : null;
+
     const message = [
       "Olá! Quero esse produto:",
       "",
       `Produto: ${currentProduct.name}`,
       ...(selectedColor ? [`Cor: ${selectedColor}`] : []),
       `Tamanho: ${selectedSize}`,
-      `Preço: ${formatPrice(currentProduct.price)}`
+      `Preço: ${formatPrice(currentProduct.price)}`,
+      ...(pixValue ? [`Preço no Pix: ${formatPrice(pixValue)}`] : []),
+      "",
+      `Link do produto: ${productLink}`
     ].join("\n");
 
     window.open(createWhatsAppLink(whatsappNumber, message), "_blank");
