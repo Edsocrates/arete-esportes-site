@@ -659,7 +659,19 @@ function renderProduct(product) {
       </section>
 
       <aside class="info-card">
-        <div class="product-category">${product.category_name || "Moda Fitness"}</div>
+        ${activeVariants.length ? `
+          <div class="sizes-title">Escolha a cor</div>
+          <div class="sizes-grid" id="colors-grid">
+            ${activeVariants.map(variant => `
+              <button type="button" class="size-btn color-btn ${variant.color_name === selectedColor ? "active" : ""}" data-color="${variant.color_name}">
+                ${variant.color_hex ? `<span style="display:inline-block;width:14px;height:14px;border-radius:999px;background:${variant.color_hex};border:1px solid rgba(0,0,0,.12);vertical-align:-2px;margin-right:8px"></span>` : ``}${variant.color_name}
+              </button>
+            `).join("")}
+          </div>
+          <div class="small-note" id="color-note">As fotos e tamanhos mudam conforme a cor escolhida.</div>
+        ` : ``}
+
+        <div class="product-category" style="margin-top:${activeVariants.length ? '18px' : '0'}">${product.category_name || "Moda Fitness"}</div>
         <h1 class="product-title">${product.name}</h1>
 
         <div class="price-row">
@@ -683,19 +695,7 @@ function renderProduct(product) {
           </div>
         </div>
 
-        ${activeVariants.length ? `
-          <div class="sizes-title">Escolha a cor</div>
-          <div class="sizes-grid" id="colors-grid">
-            ${activeVariants.map(variant => `
-              <button type="button" class="size-btn color-btn ${variant.color_name === selectedColor ? "active" : ""}" data-color="${variant.color_name}">
-                ${variant.color_hex ? `<span style="display:inline-block;width:14px;height:14px;border-radius:999px;background:${variant.color_hex};border:1px solid rgba(0,0,0,.12);vertical-align:-2px;margin-right:8px"></span>` : ``}${variant.color_name}
-              </button>
-            `).join("")}
-          </div>
-          <div class="small-note" id="color-note">As fotos e tamanhos mudam conforme a cor escolhida.</div>
-        ` : ``}
-
-        <div class="sizes-title" style="margin-top:${activeVariants.length ? '18px' : '0'}">Escolha seu tamanho</div>
+        <div class="sizes-title" style="margin-top:0">Escolha seu tamanho</div>
         <div class="sizes-grid" id="sizes-grid">
           ${sizes.map(size => `<button type="button" class="size-btn" data-size="${size}">${size}</button>`).join("")}
         </div>
